@@ -27,8 +27,7 @@ Simply replace threadId with the one you would like to download.
 Messenger have a limit on the amount of calls you can send to their API.
 The API will limit you if you try to download a large chat (which often happens with groupchats).
 This is when you need the `-i` or `--infinite` flag. If you would hit the limit, the process is put to sleep
-for about 3 minutes before it tries again.
-The process is repeated until you hit the `--max-errors` count which defaults to 3.
+for about 3 minutes before it tries again. The process is repeated until you succeed.
 
 ## Output
 
