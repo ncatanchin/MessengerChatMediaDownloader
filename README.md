@@ -45,6 +45,10 @@ I recommend to run the above along with -i, --infinite, see [the section above](
 
 Downloaded files are outputted to `./outputs/<conversation_name>`.
 
+## Getting started
+
+See [CONTRIBUTING](CONTRIBUTING.md)
+
 ## License
 
 The utility is licensed under [MIT License](./LICENSE).

@@ -10,6 +10,7 @@ import { ThreadSavedInfo } from "./ThreadSavedInfo";
 class MediaFetcherError extends Error {}
 
 export class MediaFetcher {
+  //TODO make the config editable
   readonly MaxErrors = 3;
   readonly postsToReadAtOnceMin = 900;
   readonly postsToReadAtOnceMax = 1000;
