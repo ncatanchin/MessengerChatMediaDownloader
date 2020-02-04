@@ -10,15 +10,28 @@ import { ThreadSavedInfo } from "./ThreadSavedInfo";
 class MediaFetcherError extends Error {}
 
 export class MediaFetcher {
-  //TODO make the config editable
-  readonly MaxErrors = 3;
-  readonly postsToReadAtOnceMin = 900;
-  readonly postsToReadAtOnceMax = 1000;
-  readonly threadsToReadAtOnce = 30;
-  readonly emptyMessagesBeforeSkipping = 3;
+  readonly emptyMessagesBeforeSkipping: number = 3;
+  errorsCount: number = 0;
 
+  MaxErrors: number;
+  postsToReadAtOnceMin: number;
+  postsToReadAtOnceMax: number;
+  threadsToReadAtOnce: number;
   facebookApi: any;
-  errorsCount: number;
+
+  constructor(
+    MaxErrors: number = 3,
+    postsToReadAtOnceMin: number = 250,
+    postsToReadAtOnceMax: number = 500,
+    threadsToReadAtOnce: number = 30,
+    msgApi: any
+  ) {
+    this.MaxErrors = MaxErrors;
+    this.postsToReadAtOnceMin = postsToReadAtOnceMin;
+    this.postsToReadAtOnceMax = postsToReadAtOnceMax;
+    this.threadsToReadAtOnce = threadsToReadAtOnce;
+    this.facebookApi = msgApi;
+  }
 
   get threadsInfoManager(): SavedThreadManager {
     return Singletons.savedThreadsManager;
@@ -26,11 +39,6 @@ export class MediaFetcher {
 
   get pathsManager(): PathsManager {
     return Singletons.pathsManager;
-  }
-
-  constructor(api: any) {
-    this.facebookApi = api;
-    this.errorsCount = 0;
   }
 
   async saveAll() {

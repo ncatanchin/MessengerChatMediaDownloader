@@ -29,7 +29,7 @@ to dump everything until it succeeds.
 
 ## Usage
 
-`node app.js`
+`node dist/app.js`
 
 ## Requirements
 

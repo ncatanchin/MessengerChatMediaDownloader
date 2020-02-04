@@ -24,10 +24,12 @@ export class Downloader {
 
   async downloadFilesForAll() {
     let mainThreadsPath = this.pathsManager.threadsMainPath;
+
     const isDirectory = (source: fse.PathLike) =>
       fse.lstatSync(source).isDirectory();
 
     let sourceDir: string = mainThreadsPath;
+
     let directories: string[] = fse
       .readdirSync(sourceDir)
       .map(name => path.join(sourceDir, name))

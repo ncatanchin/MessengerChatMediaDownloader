@@ -7,6 +7,7 @@ import { Singletons } from "./Singletons";
 
 export class Core {
   facebookApi: any;
+
   get pathsManager(): PathsManager {
     return Singletons.pathsManager;
   }

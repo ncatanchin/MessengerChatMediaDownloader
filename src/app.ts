@@ -8,12 +8,12 @@ import { MediaFetcher } from "./MediaFetcher";
 import { PathsManager } from "./PathsManager";
 import { Singletons } from "./Singletons";
 
-var pathsManager: PathsManager = Singletons.pathsManager;
+let pathsManager: PathsManager = Singletons.pathsManager;
 
 Main();
 
 async function Main() {
-  Command.version("0.0.2");
+  Command.version("0.0.3");
 
   Command.option(
     "-r, --reset",
@@ -25,6 +25,22 @@ async function Main() {
     .option(
       "-t, --thread <threadID>",
       "download photos/videos/audios from the conversation with given threadID"
+    )
+    .option(
+      "-me, --max-errors <number>",
+      "set the limit of errors to accept before interrupting, default is 3"
+    )
+    .option(
+      "-minrl, --min-read-limit <number>",
+      "the minimum of posts to read at once, default is 250"
+    )
+    .option(
+      "-maxrl, --max-read-limit <number>",
+      "the maximum of posts to read at once, default is 500"
+    )
+    .option(
+      "-readthr, --read-threads-at-once <number>",
+      "the amount of threads to read at once, default is 30"
     );
 
   Command.parse(process.argv);
@@ -48,40 +64,59 @@ async function Main() {
       while (1) {
         try {
           let downloader: Downloader;
+          // let mediaFetcher = new MediaFetcher(core.facebookApi);
+          let mediaFetcher = new MediaFetcher(
+            Command.maxErrors,
+            Command.minReadLimit,
+            Command.maxReadLimit,
+            Command.readThreadsAtOnce,
+            core.facebookApi
+          );
+
           if (Command.all || Command.thread) {
             downloader = new Downloader();
           }
-          let mediaFetcher = new MediaFetcher(core.facebookApi);
+
           if (Command.all) {
             await mediaFetcher.saveAll();
             await downloader.downloadFilesForAll();
           }
+
           if (Command.list) {
             await mediaFetcher.saveThreadsList();
           }
+
           if (Command.thread) {
             let threadId: string = Command.thread;
+
             await mediaFetcher.saveUrlsForThread(threadId);
             await downloader.downloadFilesForThread(threadId);
           }
         } catch (error) {
           Config.logError(error);
+
           if (!Command.infinite) {
             throw error;
           } else {
             let delayInMs: number = 1000 * 60 * 3;
             console.log("Will retry in " + delayInMs / 1000 / 60 + " minutes");
+
             await delay(delayInMs);
             continue;
           }
         }
+
         break;
       }
     } catch (error) {
-      Config.logError(error);
-      Config.logError("Fatal error, terminating...");
+      Config.logError(`Fatal error, terminating... ${error}`);
     }
   }
 
-  console.log("No argument provided...");
+  console.log("No arguments provided...");
+  console.log("Example: node dist/app.js --thread 123456789");
+  console.log("Example: node dist/app.js --thread 123456789 --infinite");
+  console.log(
+    "Example: node dist/app.js --thread 123456789 --max-errors 5 -maxrl 500"
+  );
 }
