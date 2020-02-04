@@ -8,27 +8,29 @@ conversation scanning started will be ignored. To scan & download such messages,
 ## Command line options
 
 ```txt
--r, --reset - Resets the saved session, allows to relog to Facebook
+-r, --reset - Resets the saved session, allows to relog to Facebook.
 
--a, --all - Download photos/videos/audios from all conversations
+-a, --all - Download photos/videos/audios from all conversations.
 
--l, --list - List all conversations and their threadIds
+-l, --list - List all conversations and their threadIds.
 
--t, --thread <threadID> - Download photos/videos/audios from the conversation with given threadID
+-t, --thread <threadID> - Download photos/videos/audios from the conversation with given threadID.
 
--i, --infinite - Keep retrying until all operations succeed
+-i, --infinite - Keep retrying until all operations succeed.
 
--me, --max-errors <number> - Set the limit of errors to accept before interrupting, default is 3
+-me, --max-errors <number> - Set the limit of errors to accept before interrupting, default is 3.
 
--minrl, --min-read-limit <number> - Minimum of posts to read at once, default is 100
+-readthr, --read-threads-at-once <number> - Amount of threads to read at once, default is 30.
 
--maxrl, --max-read-limit <number> - Maximum of posts to read at once, default is 500
+-d, --delay <number> - Delay before a new attempt is performed, default is 3.
 
--readthr, --read-threads-at-once <number> - Amount of threads to read at once, default is 15
+-minrl, --min-read-limit <number> - Minimum of posts to read at once, default is 100.
 
--h, --help - Print help
+-maxrl, --max-read-limit <number> - Maximum of posts to read at once, default is 500.
 
--V, --version - Print version
+-h, --help - Print help.
+
+-V, --version - Print version.
 ```
 
 There seem to be some kind of API calls limit so if you attempt to dump media from a large conversation

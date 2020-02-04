@@ -7,6 +7,7 @@ import { Downloader } from "./Downloader";
 import { MediaFetcher } from "./MediaFetcher";
 import { PathsManager } from "./PathsManager";
 import { Singletons } from "./Singletons";
+import commander = require("commander");
 
 let pathsManager: PathsManager = Singletons.pathsManager;
 
@@ -28,19 +29,24 @@ async function Main() {
     )
     .option(
       "-me, --max-errors <number>",
-      "set the limit of errors to accept before interrupting, default is 3"
-    )
-    .option(
-      "-minrl, --min-read-limit <number>",
-      "the minimum of posts to read at once, default is 100"
-    )
-    .option(
-      "-maxrl, --max-read-limit <number>",
-      "the maximum of posts to read at once, default is 500"
+      "set the limit of errors to accept before interrupting, default is 3",
+      3
     )
     .option(
       "-readthr, --read-threads-at-once <number>",
-      "the amount of threads to read at once, default is 15"
+      "the amount of threads to read at once, default is 30",
+      30
+    )
+    .option("-d, --delay", "Delay before a new attempt is performed.", 3)
+    .option(
+      "-minrl, --min-read-limit <number>",
+      "the minimum of posts to read at once, default is 100",
+      100
+    )
+    .option(
+      "-maxrl, --max-read-limit <number>",
+      "the maximum of posts to read at once, default is 500",
+      500
     );
 
   Command.parse(process.argv);
@@ -64,7 +70,7 @@ async function Main() {
       while (1) {
         try {
           let downloader: Downloader;
-          // let mediaFetcher = new MediaFetcher(core.facebookApi);
+
           let mediaFetcher = new MediaFetcher(
             Command.maxErrors,
             Command.minReadLimit,
@@ -98,8 +104,8 @@ async function Main() {
           if (!Command.infinite) {
             throw error;
           } else {
-            let delayInMs: number = 1000 * 60 * 3;
-            console.log("Will retry in " + delayInMs / 1000 / 60 + " minutes");
+            let delayInMs: number = 1000 * 60 * Command.delay;
+            console.log("Retry in " + delayInMs / 1000 / 60 + " minutes...");
 
             await delay(delayInMs);
             continue;
@@ -109,13 +115,14 @@ async function Main() {
         break;
       }
     } catch (error) {
-      Config.logError(`Fatal error, terminating... ${error}`);
+      Config.logError(error);
     }
   }
 
   console.log("No arguments provided...");
   console.log("Example: node dist/app.js --thread 123456789");
   console.log("Example: node dist/app.js --thread 123456789 --infinite");
+  console.log("Example: node dist/app.js --thread 123456789 --delay 3");
   console.log(
     "Example: node dist/app.js --thread 123456789 --max-errors 5 -maxrl 500"
   );

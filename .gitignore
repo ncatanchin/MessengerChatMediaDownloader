@@ -1,3 +1,9 @@
+src/threadsIDs.txt
+src/threadsInfo.json
+src/appstate.json
+src/threads
+src/outputs
+
 # Created by https://www.gitignore.io/api/node
 # Edit at https://www.gitignore.io/?templates=node
 

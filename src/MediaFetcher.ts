@@ -13,20 +13,20 @@ export class MediaFetcher {
   readonly emptyMessagesBeforeSkipping: number = 3;
   errorsCount: number = 0;
 
-  MaxErrors: number;
+  maxErrors: number;
   postsToReadAtOnceMin: number;
   postsToReadAtOnceMax: number;
   threadsToReadAtOnce: number;
   facebookApi: any;
 
   constructor(
-    MaxErrors: number = 3,
-    postsToReadAtOnceMin: number = 100,
-    postsToReadAtOnceMax: number = 500,
-    threadsToReadAtOnce: number = 15,
+    maxErrors: number,
+    postsToReadAtOnceMin: number,
+    postsToReadAtOnceMax: number,
+    threadsToReadAtOnce: number,
     msgApi: any
   ) {
-    this.MaxErrors = MaxErrors;
+    this.maxErrors = maxErrors;
     this.postsToReadAtOnceMin = postsToReadAtOnceMin;
     this.postsToReadAtOnceMax = postsToReadAtOnceMax;
     this.threadsToReadAtOnce = threadsToReadAtOnce;
@@ -283,7 +283,7 @@ export class MediaFetcher {
 
   onError() {
     this.errorsCount++;
-    if (this.errorsCount >= this.MaxErrors) {
+    if (this.errorsCount >= this.maxErrors) {
       throw Error("Exiting due too many errors");
     }
   }

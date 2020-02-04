@@ -16,11 +16,12 @@ class FileProgress {
 
 export class Downloader {
   facebookApi: any;
+
+  constructor() {}
+
   get pathsManager(): PathsManager {
     return Singletons.pathsManager;
   }
-
-  constructor() {}
 
   async downloadFilesForAll() {
     let mainThreadsPath = this.pathsManager.threadsMainPath;

@@ -8,11 +8,11 @@ import { Singletons } from "./Singletons";
 export class Core {
   facebookApi: any;
 
+  constructor() {}
+
   get pathsManager(): PathsManager {
     return Singletons.pathsManager;
   }
-
-  constructor() {}
 
   async setup(appState: any): Promise<any> {
     if (appState != null) {
