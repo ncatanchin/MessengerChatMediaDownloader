@@ -31,20 +31,24 @@ async function Main() {
       "Set the limit of errors to accept before interrupting, default is 3",
       3
     )
-    .option("-d, --delay", "Delay before a new attempt is performed.", 3)
+    .option(
+      "-d, --delay",
+      "Delay before a new attempt is performed, default is 3",
+      3
+    )
     .option(
       "-o, --read-threads-at-once <number>",
-      "Set amount of threads to read at once, default is 30",
+      "Amount of threads to read at once, default is 30",
       30
     )
     .option(
       "-y, --min-read-limit <number>",
-      "Set minimum of posts to read at once, default is 250",
+      "Minimum of posts to read at once, default is 250",
       250
     )
     .option(
       "-x, --max-read-limit <number>",
-      "Set maximum of posts to read at once, default is 500",
+      "Maximum of posts to read at once, default is 500",
       500
     )
     .option("-e, --examples", "See a list of examples");

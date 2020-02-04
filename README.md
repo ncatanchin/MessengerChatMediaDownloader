@@ -1,21 +1,37 @@
 # Messenger Media Downloader
 
-A utility for downloading photos/videos/audios from facebook messenger chats.
-The utility caches your session, so you will be prompted to log in only on the first launch or when to fail to log in with the cached session.
-Downloading and media scanning save progress, so you are safe to restart the utility. Keep in mind that new messages that you receive after
-conversation scanning started will be ignored. To scan & download such messages, you will have to reinstall the utility.
+A utility for downloading photos/videos/audios from Facebook messenger.
+The utility caches your session, so you will be prompted to log in only on the first launch or when failing to login with the cached session.
+The progress is saved during downloading and media scanning, so you are safe to restart the utility.
+Keep in mind that new messages that you receive after the scanning is started will be ignored.
+To scan and download such messages, you will have to reinstall the utility.
 
 ## Usage
 
 `node dist/app.js`
 
-### Get list of threads
+### Retrieve list of threads
 
-`node dist/app.js --list`
+This is be the first thing you do.
+Execute the following line, `node dist/app.js --list`
+You will then find a text file filled with a bunch of groupchats/private conversations and their assigned threadId.
+The threadId is what you need during the next step.
 
 ### Download specific thread
 
-`node dist/app.js --thread threadID`
+Simply replace threadId with the one you would like to download.
+`node dist/app.js --thread threadId`
+
+## Large conversations
+
+Messenger have a limit on the amount of calls you can send to their API.
+The API will limit you if you try to download a large chat (which often happens with groupchats).
+This is when you need the `-i` or `--infinite` flag. If you would hit the limit, the process is put to sleep
+for about 3 minutes before it tries again. The process is repeated until you hit the `--max-error` count which defaults to 3.
+
+## Output
+
+Downloaded files are outputted to `outputs/<conversation_name>`.
 
 ## Command line options
 
@@ -47,25 +63,11 @@ conversation scanning started will be ignored. To scan & download such messages,
 -V, --version - Print version.
 ```
 
-There seem to be some kind of API calls limit so if you attempt to dump media from a large conversation
-or all conversations, you will most likely hit the limit. That's why there's is -i, --infinite option, so the utility will keep retrying
-to dump everything until it succeeds.
-
 ## Requirements
 
 [Node.js](https://nodejs.org/) is required to run the utility.
 
-Command line options are pretty self-explanatory.
-Run with -a, -all option to dump media from all conversations.
-To dump media from a single conversation you have to get its threadId. In order to do that run the utility with -l, --list option,
-read threadId of the conversation you are interested in, and then run the utility with -t --thread &lt;threadId&gt; option.
-I recommend to run the above along with -i, --infinite, see [the section above](#infinite_explanation) for the explanation.
-
-## Output
-
-Downloaded files are outputted to `./outputs/<conversation_name>`.
-
-## Getting started
+## Contributing
 
 See [CONTRIBUTING](CONTRIBUTING.md)
 
