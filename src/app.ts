@@ -32,7 +32,7 @@ async function Main() {
     )
     .option(
       "-minrl, --min-read-limit <number>",
-      "the minimum of posts to read at once, default is 250"
+      "the minimum of posts to read at once, default is 100"
     )
     .option(
       "-maxrl, --max-read-limit <number>",
@@ -40,7 +40,7 @@ async function Main() {
     )
     .option(
       "-readthr, --read-threads-at-once <number>",
-      "the amount of threads to read at once, default is 30"
+      "the amount of threads to read at once, default is 15"
     );
 
   Command.parse(process.argv);

@@ -21,9 +21,9 @@ export class MediaFetcher {
 
   constructor(
     MaxErrors: number = 3,
-    postsToReadAtOnceMin: number = 250,
+    postsToReadAtOnceMin: number = 100,
     postsToReadAtOnceMax: number = 500,
-    threadsToReadAtOnce: number = 30,
+    threadsToReadAtOnce: number = 15,
     msgApi: any
   ) {
     this.MaxErrors = MaxErrors;

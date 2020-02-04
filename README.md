@@ -3,7 +3,7 @@
 A utility for downloading photos/videos/audios from facebook messenger chats.
 The utility caches your session, so you will be prompted to log in only on the first launch or when to fail to log in with the cached session.
 Downloading and media scanning save progress, so you are safe to restart the utility. Keep in mind that new messages that you receive after
-conversation scanning started will be ignored. To scan&download such messages, you will have to reinstall the utility.
+conversation scanning started will be ignored. To scan & download such messages, you will have to reinstall the utility.
 
 ## Command line options
 
@@ -20,11 +20,11 @@ conversation scanning started will be ignored. To scan&download such messages, y
 
 -me, --max-errors <number> - Set the limit of errors to accept before interrupting, default is 3
 
--minrl, --min-read-limit <number> - Minimum of posts to read at once, default is 250
+-minrl, --min-read-limit <number> - Minimum of posts to read at once, default is 100
 
 -maxrl, --max-read-limit <number> - Maximum of posts to read at once, default is 500
 
--readthr, --read-threads-at-once <number> - Amount of threads to read at once, default is 30
+-readthr, --read-threads-at-once <number> - Amount of threads to read at once, default is 15
 
 -h, --help - Print help
 
