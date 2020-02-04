@@ -14,9 +14,17 @@ conversation scanning started will be ignored. To scan&download such messages, y
 
 -l, --list - List all conversations and their threadIds
 
--t, --thread &lt;threadId&gt; - Download photos/videos/audios from the conversation with given threadID
+-t, --thread <threadID> - Download photos/videos/audios from the conversation with given threadID
 
 -i, --infinite - Keep retrying until all operations succeed
+
+-me, --max-errors <number> - Set the limit of errors to accept before interrupting, default is 3
+
+-minrl, --min-read-limit <number> - Minimum of posts to read at once, default is 250
+
+-maxrl, --max-read-limit <number> - Maximum of posts to read at once, default is 500
+
+-readthr, --read-threads-at-once <number> - Amount of threads to read at once, default is 30
 
 -h, --help - Print help
 
