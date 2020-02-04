@@ -7,7 +7,6 @@ import { Downloader } from "./Downloader";
 import { MediaFetcher } from "./MediaFetcher";
 import { PathsManager } from "./PathsManager";
 import { Singletons } from "./Singletons";
-import commander = require("commander");
 
 let pathsManager: PathsManager = Singletons.pathsManager;
 
@@ -18,36 +17,37 @@ async function Main() {
 
   Command.option(
     "-r, --reset",
-    "resets the saved session, allows to relog to fb"
+    "Resets the saved session, allows to relog to fb"
   )
-    .option("-a, --all", "download photos/videos/audios from all conversations")
-    .option("-l, --list", "list all conversations and their threadIds")
-    .option("-i, --infinite", "keep retrying until all operations succeed")
+    .option("-a, --all", "Download photos/videos/audios from all conversations")
+    .option("-l, --list", "List all conversations and their threadIds")
+    .option("-i, --infinite", "Keep retrying until all operations succeed")
     .option(
       "-t, --thread <threadID>",
-      "download photos/videos/audios from the conversation with given threadID"
+      "Download photos/videos/audios from the conversation with given threadID"
     )
     .option(
-      "-me, --max-errors <number>",
-      "set the limit of errors to accept before interrupting, default is 3",
+      "-m, --max-errors <number>",
+      "Set the limit of errors to accept before interrupting, default is 3",
       3
-    )
-    .option(
-      "-readthr, --read-threads-at-once <number>",
-      "the amount of threads to read at once, default is 30",
-      30
     )
     .option("-d, --delay", "Delay before a new attempt is performed.", 3)
     .option(
-      "-minrl, --min-read-limit <number>",
-      "the minimum of posts to read at once, default is 100",
-      100
+      "-o, --read-threads-at-once <number>",
+      "Set amount of threads to read at once, default is 30",
+      30
     )
     .option(
-      "-maxrl, --max-read-limit <number>",
-      "the maximum of posts to read at once, default is 500",
+      "-y, --min-read-limit <number>",
+      "Set minimum of posts to read at once, default is 250",
+      250
+    )
+    .option(
+      "-x, --max-read-limit <number>",
+      "Set maximum of posts to read at once, default is 500",
       500
-    );
+    )
+    .option("-e, --examples", "See a list of examples");
 
   Command.parse(process.argv);
 
@@ -60,6 +60,25 @@ async function Main() {
     } catch (error) {
       Config.logError(error);
     }
+  }
+
+  if (Command.minReadLimit > Command.maxReadLimit) {
+    Config.logError("--min-read-limit cannot be higher than --max-read-limit");
+    process.exit(1);
+  }
+
+  if (Command.examples) {
+    console.log("Examples:");
+    console.log("node dist/app.js --thread 123456789");
+    console.log("node dist/app.js --thread 123456789 --infinite");
+    console.log("node dist/app.js --thread 123456789 --delay 3");
+    console.log(
+      "node dist/app.js --thread 123456789 --max-errors 5 --max-read-limit 500"
+    );
+    console.log(
+      "node dist/app.js --thread 123456789 -md 4 -o 25 -y 300 -x 600"
+    );
+    process.exit(0);
   }
 
   if (Command.all || Command.list || Command.thread) {
@@ -119,11 +138,6 @@ async function Main() {
     }
   }
 
-  console.log("No arguments provided...");
-  console.log("Example: node dist/app.js --thread 123456789");
-  console.log("Example: node dist/app.js --thread 123456789 --infinite");
-  console.log("Example: node dist/app.js --thread 123456789 --delay 3");
-  console.log(
-    "Example: node dist/app.js --thread 123456789 --max-errors 5 -maxrl 500"
-  );
+  console.log("See options: node dist/app.js --help");
+  console.log("See examples: node dist/app.js --examples");
 }

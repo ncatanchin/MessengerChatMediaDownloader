@@ -83,7 +83,8 @@ export class MediaFetcher {
         this.onError();
       }
     } while (1);
-    console.log("saveAll Finished");
+
+    console.log("saveAll Finished!");
   }
 
   async saveUrlsForThread(threadId: string) {
@@ -118,7 +119,8 @@ export class MediaFetcher {
         throw error;
       }
     } while (1);
-    console.log("saveUrlsForThread Finished");
+
+    console.log("saveUrlsForThread Finished!");
   }
 
   /**
@@ -179,16 +181,20 @@ export class MediaFetcher {
         if (history.length > 0) {
           readMessages += history.length;
           let percent = calculateProgress();
+
           if (percent > percentReadNotify) {
             printProgress(percent);
             percentReadNotify = 10 + percent;
           }
+
           messageTimestamp = Number(history[0].timestamp);
+
           history.forEach(
             msg => (urls = urls.concat(this.getUrlsFromMessage(msg)))
           );
         } else {
           emptyHistoryCounter++;
+
           if (emptyHistoryCounter >= this.emptyMessagesBeforeSkipping) {
             saveProgress();
             throw new MediaFetcherError("API calls limit reached");
@@ -207,7 +213,6 @@ export class MediaFetcher {
     }
 
     saveProgress();
-
     return urls;
   }
 
@@ -325,12 +330,9 @@ export class MediaFetcher {
   async saveUrlsToDisk(threadId: string, urls: string[]) {
     if (urls.length > 0) {
       // Remove duplicates
-      var uniqUrls = [...new Set(urls)];
-
+      let uniqUrls = [...new Set(urls)];
       let urlsPath: string = this.pathsManager.getUrlsPathForThread(threadId);
-
       await fse.ensureFile(urlsPath);
-
       let writeStream = fse.createWriteStream(urlsPath);
 
       writeStream.on("error", function(err) {
@@ -339,7 +341,7 @@ export class MediaFetcher {
 
       uniqUrls.forEach(url => writeStream.write(url + "\n", "utf8"));
 
-      var awaitableStreamEnd = new Promise((resolve, reject) => {
+      let awaitableStreamEnd = new Promise(resolve => {
         writeStream.end(resolve);
       });
 
