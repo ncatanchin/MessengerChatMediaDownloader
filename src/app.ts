@@ -95,10 +95,10 @@ async function Main() {
           let downloader: Downloader;
 
           let mediaFetcher = new MediaFetcher(
-            Command.maxErrors,
-            Command.minReadLimit,
-            Command.maxReadLimit,
-            Command.readThreadsAtOnce,
+            parseInt(Command.maxErrors),
+            parseInt(Command.minReadLimit),
+            parseInt(Command.maxReadLimit),
+            parseInt(Command.readThreadsAtOnce),
             core.facebookApi
           );
 

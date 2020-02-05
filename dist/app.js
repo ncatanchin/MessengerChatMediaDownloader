@@ -64,7 +64,7 @@ function Main() {
                 while (1) {
                     try {
                         let downloader;
-                        let mediaFetcher = new MediaFetcher_1.MediaFetcher(Command.maxErrors, Command.minReadLimit, Command.maxReadLimit, Command.readThreadsAtOnce, core.facebookApi);
+                        let mediaFetcher = new MediaFetcher_1.MediaFetcher(parseInt(Command.maxErrors), parseInt(Command.minReadLimit), parseInt(Command.maxReadLimit), parseInt(Command.readThreadsAtOnce), core.facebookApi);
                         if (Command.all || Command.thread) {
                             downloader = new Downloader_1.Downloader();
                         }

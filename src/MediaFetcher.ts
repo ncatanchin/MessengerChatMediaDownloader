@@ -10,9 +10,6 @@ import { ThreadSavedInfo } from "./ThreadSavedInfo";
 class MediaFetcherError extends Error {}
 
 export class MediaFetcher {
-  readonly emptyMessagesBeforeSkipping: number = 3;
-  errorsCount: number = 0;
-
   maxErrors: number;
   postsToReadAtOnceMin: number;
   postsToReadAtOnceMax: number;
@@ -32,6 +29,9 @@ export class MediaFetcher {
     this.threadsToReadAtOnce = threadsToReadAtOnce;
     this.facebookApi = msgApi;
   }
+
+  readonly emptyMessagesBeforeSkipping: number = 3;
+  errorsCount: number = 0;
 
   get threadsInfoManager(): SavedThreadManager {
     return Singletons.savedThreadsManager;
