@@ -12,7 +12,7 @@ To scan and download such messages, you will have to reinstall the utility.
 
 ### Retrieve list of threads
 
-This is be the first thing you do.
+This should be the first thing you do.
 Execute the following line, `node dist/app.js --list`
 You will then find a text file filled with a bunch of groupchats/private conversations and their assigned threadId.
 The threadId is what you need during the next step.
