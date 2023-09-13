@@ -7,7 +7,13 @@ export class ThreadSavedInfo {
     name: string;
     completed: boolean = false;
 
-    constructor(lastTimestamp: number = null, name: string = null, messagesRead: number = 0, completed: boolean = false, messageCount: number = 0) {
+    constructor(
+        lastTimestamp: number = null,
+        name: string = null,
+        messagesRead: number = 0,
+        completed: boolean = false,
+        messageCount: number = 0
+    ) {
         this.lastTimestamp = lastTimestamp;
         this.name = name;
         this.messagesRead = messagesRead;

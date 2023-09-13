@@ -1,9 +1,8 @@
-import * as path from 'path';
-import { Singletons } from './Singletons';
-import { SavedThreadManager } from './SavedThreadManager';
+import * as path from "path";
+import { SavedThreadManager } from "./SavedThreadManager";
+import { Singletons } from "./Singletons";
 
 export class PathsManager {
-
     get threadsInfoManager(): SavedThreadManager {
         return Singletons.savedThreadsManager;
     }
@@ -24,13 +23,17 @@ export class PathsManager {
         return path.join(this.threadsMainPath, threadId);
     }
 
+    getUserPath(userId: number) : string {
+        return path.join(this.basedir, "outputs", userId.toString());
+    }
+
     getUrlsPathForThread(threadId: string): string {
         return path.join(this.getPathForThread(threadId), "urls.txt");
     }
 
     getOutputPathForThread(threadId: string): string {
         let name: string = this.threadsInfoManager.getThreadInfo(threadId).name;
-        return path.join(this.threadsMainOutputPath, name);
+        return path.join(this.threadsMainOutputPath, threadId+'-'+name);
     }
 
     getFileProgressPathForThread(threadId: string): string {
@@ -48,6 +51,11 @@ export class PathsManager {
     getTempUrlFilePath(threadID: string): string {
         return path.join(this.basedir, "temp", threadID + ".json");
     }
+
+    getMessagesPath(threadID: string): string {
+        return path.join(this.basedir, "temp", threadID + "-messages.json");
+    }
+
 
     getAppStatePath(): string {
         return path.join(this.basedir, "appstate.json");

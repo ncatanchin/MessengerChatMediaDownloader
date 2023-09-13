@@ -1,24 +1,39 @@
-import * as fse from 'fs-extra';
-import * as delay from 'delay';
-import * as random from 'random';
-import { Config } from './Config';
-import { PathsManager } from './PathsManager';
-import { Singletons } from './Singletons';
-import { ThreadSavedInfo } from './ThreadSavedInfo';
-import { SavedThreadManager } from './SavedThreadManager';
+import * as delay from "delay";
+import * as fse from "fs-extra";
+import * as random from "random";
+import * as translate from "translate";
+import { Config } from "./Config";
+import { PathsManager } from "./PathsManager";
+import { SavedThreadManager } from "./SavedThreadManager";
+import { Singletons } from "./Singletons";
+import { ThreadSavedInfo } from "./ThreadSavedInfo";
+import * as printTable from "console-table-printer";
 
-class MediaFetcherError extends Error {
-
-}
+class MediaFetcherError extends Error {}
 
 export class MediaFetcher {
-    readonly MaxErrors = 3;
-    readonly postsToReadAtOnceMin = 900;
-    readonly postsToReadAtOnceMax = 1000;
-    readonly threadsToReadAtOnce = 30;
-    readonly emptyMessagesBeforeSkipping = 3;
+    maxErrors: number;
+    postsToReadAtOnceMin: number;
+    postsToReadAtOnceMax: number;
+    threadsToReadAtOnce: number;
     facebookApi: any;
-    errorsCount: number;
+
+    constructor(
+        maxErrors: number,
+        postsToReadAtOnceMin: number,
+        postsToReadAtOnceMax: number,
+        threadsToReadAtOnce: number,
+        msgApi: any
+    ) {
+        this.maxErrors = maxErrors;
+        this.postsToReadAtOnceMin = postsToReadAtOnceMin;
+        this.postsToReadAtOnceMax = postsToReadAtOnceMax;
+        this.threadsToReadAtOnce = threadsToReadAtOnce;
+        this.facebookApi = msgApi;
+    }
+
+    readonly emptyMessagesBeforeSkipping: number = 3;
+    errorsCount: number = 0;
 
     get threadsInfoManager(): SavedThreadManager {
         return Singletons.savedThreadsManager;
@@ -28,11 +43,6 @@ export class MediaFetcher {
         return Singletons.pathsManager;
     }
 
-    constructor(api: any) {
-        this.facebookApi = api;
-        this.errorsCount = 0;
-    }
-
     async saveAll() {
         let previousThreadTimestamp: number;
         let threadTimestamp: number;
@@ -40,7 +50,12 @@ export class MediaFetcher {
             try {
                 console.log("Getting thread info...");
                 previousThreadTimestamp = threadTimestamp;
-                let threadsInfo = await this.getNextThreads(this.threadsToReadAtOnce, threadTimestamp);
+
+                let threadsInfo = await this.getNextThreads(
+                    this.threadsToReadAtOnce,
+                    threadTimestamp
+                );
+
                 if (threadsInfo && threadsInfo.length > 0) {
                     for (let threadInfo of threadsInfo) {
                         if (threadInfo != null) {
@@ -52,8 +67,7 @@ export class MediaFetcher {
                             await this.saveUrlsToDisk(threadInfo.threadID, urls);
                         }
                     }
-                }
-                else {
+                } else {
                     break;
                 }
                 await delay(random.int(1000, 5000));
@@ -65,8 +79,7 @@ export class MediaFetcher {
 
                     //uncomment to retry with the current thread
                     //threadTimestamp = previousThreadTimestamp;
-                }
-                else {
+                } else {
                     Config.logError(error);
                     Config.logError("Retrying...")
                 }
@@ -81,12 +94,14 @@ export class MediaFetcher {
             try {
                 console.log("Getting thread info...");
                 let threadInfo = await this.getThreadInfo(threadId);
+
                 if (threadInfo) {
                     let name = await this.getThreadName(threadInfo);
                     console.log("Thread name: " + name + ", message count: " + threadInfo.messageCount);
 
                     let urls: string[] = await this.getUrlsForThread(threadInfo, name);
-
+console.log('GOt these urls', urls);
+console.log('Calling aveUrlsToDisk');
                     await this.saveUrlsToDisk(threadId, urls);
                 } else {
                     throw new MediaFetcherError("Failed to query thread info");
@@ -114,14 +129,20 @@ export class MediaFetcher {
      */
     async getUrlsForThread(threadInfo: any, name: string): Promise<string[]> {
         let threadId: string = threadInfo.threadID;
-        let threadProgress: ThreadSavedInfo = this.threadsInfoManager.getThreadInfo(threadId);
+        let threadProgress: ThreadSavedInfo = this.threadsInfoManager.getThreadInfo(
+            threadId
+        );
         let messageTimestamp: number = threadProgress.lastTimestamp;
         let readMessages: number = threadProgress.messagesRead;
-        let messageCount: number = threadProgress.messageCount ? threadProgress.messageCount : threadInfo.messageCount;
+        let messageCount: number = threadProgress.messageCount
+            ? threadProgress.messageCount
+            : threadInfo.messageCount;
+
         let urls: string[] = this.readTempSavedUrls(threadId);
         let history: any[] = [];
         let emptyHistoryCounter: number = 0;
         let percentReadNotify = 10;
+        let fullHist: any[] = [];
 
         if (threadProgress.completed) {
             return urls;
@@ -130,13 +151,25 @@ export class MediaFetcher {
         const saveProgress = () => {
             //Do not save the progress when no messages read as we do not have timestamp and that will fuck up messageCount if there come new messages meanwhile
             if (readMessages > 0) {
-                this.threadsInfoManager.saveThreadInfo(threadId, new ThreadSavedInfo(messageTimestamp, name || threadId, readMessages, readMessages >= messageCount, messageCount));
+                this.threadsInfoManager.saveThreadInfo(
+                    threadId,
+                    new ThreadSavedInfo(
+                        messageTimestamp,
+                        name || threadId,
+                        readMessages,
+                        readMessages >= messageCount,
+                        messageCount
+                     )
+                );
                 this.saveTempSavedUrls(threadId, urls);
             }
         }
 
-        const calculateProgress = () => Math.floor((readMessages / messageCount) * 100);
-        const printProgress = (percent: number) => console.log("Read " + percent + "% messages");
+        const calculateProgress = () =>
+            Math.floor((readMessages / messageCount) * 100);
+
+        const printProgress = (percent: number) =>
+            console.log("Read " + percent + "% messages");
 
         printProgress(calculateProgress());
 
@@ -151,17 +184,23 @@ export class MediaFetcher {
                         percentReadNotify = 10 + percent;
                     }
                     messageTimestamp = Number(history[0].timestamp);
-                    history.forEach(msg => urls = urls.concat(this.getUrlsFromMessage(msg)));
+                    history.forEach(
+                        msg => (urls = urls.concat(this.getUrlsFromMessage(msg)))
+                    );
+
+                    fullHist = fullHist.concat(history);
+
                     for (let i = 0; i < urls.length; i++) {
                         let attachmentID = urls[i];
                         if (attachmentID.indexOf("https") == -1) {
+                            console.log('Replacing '+attachmentID+' with fullPhotoUrl, waiting...');
                             await new Promise(r => setTimeout(r, random.int(10_000, 15_000)));
-                            urls[i] = await this.getFullPhotoUrl(attachmentID);
+                            urls[i+1] = await this.getFullPhotoUrl(attachmentID);
                         }
                     }
-                }
-                else {
+                } else {
                     emptyHistoryCounter++;
+
                     if (emptyHistoryCounter >= this.emptyMessagesBeforeSkipping) {
                         saveProgress();
                         throw new MediaFetcherError("API calls limit reached");
@@ -173,11 +212,15 @@ export class MediaFetcher {
                     throw error;
                 } else {
                     Config.logError(error);
-                    Config.logError("Retrying...")
+                    Config.logError("Retrying...");
                 }
                 this.onError();
             }
         }
+
+        console.log(fullHist);
+        this.saveMessages(threadId + '-full', fullHist);
+
         saveProgress();
         return urls;
     }
@@ -188,12 +231,15 @@ export class MediaFetcher {
             if (msg.attachments.length > 0) {
                 msg.attachments.forEach(attachment => {
                     let url = null;
+
                     if (attachment.type == "photo") {
-                        url = attachment.ID;
-                    }
-                    else if (attachment.type == "audio" || attachment.type == "video") {
+                        console.log(attachment);
+                        urls.push(attachment.largePreviewUrl);
+                        urls.push(attachment.ID);
+                    } else if (attachment.type == "audio" || attachment.type == "video") {
                         url = attachment.url;
                     }
+
                     if (url != null) {
                         urls.push(url);
                     }
@@ -208,12 +254,14 @@ export class MediaFetcher {
         let threadTimestamp: number;
         do {
             try {
-                let fetched = await this.getNextThreads(this.threadsToReadAtOnce, threadTimestamp);
+                let fetched = await this.getNextThreads(
+                    this.threadsToReadAtOnce,
+                    threadTimestamp
+                );
                 if (fetched.length > 0) {
                     threadTimestamp = Number(fetched[fetched.length - 1].timestamp);
                     threadsList = threadsList.concat(fetched);
-                }
-                else {
+                } else {
                     break;
                 }
             } catch (error) {
@@ -222,14 +270,24 @@ export class MediaFetcher {
                 this.onError();
             }
         } while (1);
-        const threadToString = thread => "Name: " + thread.name + ", message count: " + thread.messageCount + ", threadID: " + thread.threadID;
+
+        const threadToString = thread =>
+            "Name: " + thread.name + ", message count: " + thread.messageCount + ", threadID: " + thread.threadID;
+
         threadsList.sort((a, b) => b.messageCount - a.messageCount);
 
         if (threadsList.length > 0) {
             let filePath: string = this.pathsManager.getThreadsIdsFilePath();
             let writeStream = fse.createWriteStream(filePath);
-            writeStream.on('error', function (err) { Config.logError("IO ERROR: " + err); });
-            threadsList.forEach(thread => writeStream.write(threadToString(thread) + '\n', 'utf8'));
+
+            writeStream.on("error", function(err) {
+                Config.logError("IO ERROR: " + err);
+            });
+
+            threadsList.forEach(thread =>
+                writeStream.write(threadToString(thread) + "\n", "utf8")
+            );
+
             writeStream.end();
             console.log("Saved results to " + filePath);
         }
@@ -239,7 +297,7 @@ export class MediaFetcher {
 
     onError() {
         this.errorsCount++;
-        if (this.errorsCount >= this.MaxErrors) {
+        if (this.errorsCount >= this.maxErrors) {
             throw Error("Exiting due too many errors");
         }
     }
@@ -249,7 +307,8 @@ export class MediaFetcher {
         if (name == null) {
             name = "";
             let users: any[] = await this.getUserInfo(threadInfo.participantIDs);
-            users.forEach(user => name += user.name + "_");
+            users.forEach(user => (name += user.name + "_"));
+
             if (name.length > 1) {
                 name = name.substring(0, name.length - 1);
             }
@@ -273,18 +332,34 @@ export class MediaFetcher {
         } catch (error) { }
     }
 
+    saveMessages(threadID: string, data) {
+        console.log('saveMessages');
+
+        let filePath: string = this.pathsManager.getMessagesPath(threadID);
+
+        try {
+            fse.writeFileSync(filePath, JSON.stringify(data));
+        } catch (error) { }
+    }
+
     async saveUrlsToDisk(threadId: string, urls: string[]) {
+        console.log('saveUrlsToDisk');
+        
         if (urls.length > 0) {
             //remove duplicates
-            var uniqUrls = [...new Set(urls)];
+            let uniqUrls = [...new Set(urls)];
 
             let urlsPath: string = this.pathsManager.getUrlsPathForThread(threadId);
-
             await fse.ensureFile(urlsPath);
             let writeStream = fse.createWriteStream(urlsPath);
-            writeStream.on('error', function (err) { Config.logError("IO ERROR: " + err); });
-            uniqUrls.forEach(url => writeStream.write(url + '\n', 'utf8'));
-            var awaitableStreamEnd = new Promise((resolve, reject) => {
+
+            writeStream.on("error", function(err) {
+                Config.logError("IO ERROR: " + err);
+            });
+
+            uniqUrls.forEach(url => writeStream.write(url + "\n", "utf8"));
+
+            let awaitableStreamEnd = new Promise(resolve => {
                 writeStream.end(resolve);
             });
             await awaitableStreamEnd;
@@ -306,36 +381,61 @@ export class MediaFetcher {
                 }
 
                 let result: any[] = [];
+
+                console.log('Data from getUserInfo', data);
+
+                /*
+                let userPath: string = this.pathsManager.getUserPath(userIds);
+                let writeStream = fse.createWriteStream(userPath)
+                writeStream.write(data);
+                let awaitableStreamEnd = new Promise(resolve => {
+                    writeStream.end(resolve);
+                });
+                */
+
                 for (var prop in data) {
                     if (data.hasOwnProperty(prop)) {
                         result.push(data[prop]);
                     }
                 }
+                
+                console.log('Result from getUserInfo', result);
                 resolve(result);
             });
         });
     }
 
-    async fetchThreadHistory(threadID: string, messageTimestamp: number): Promise<any[]> {
-        //delay so we do not reach api calls limit that fast
+    async fetchThreadHistory(
+      threadID: string,
+      messageTimestamp: number
+    ): Promise<any[]> {
+        // Delay so we do not reach api calls limit that fast
         await delay(random.int(300, 500));
-        return new Promise((resolve, reject) => {
-            this.facebookApi.getThreadHistory(threadID, random.int(this.postsToReadAtOnceMin, this.postsToReadAtOnceMax), messageTimestamp, (err, history) => {
-                if (err) {
-                    Config.logError(err);
-                    reject(Error("Failed to get thread history"));
-                    return;
-                }
 
-                // if the timestamp is not null then the first message on the list is the one we got the last time
-                if (messageTimestamp != null) {
-                    if (history == null) {
-                        history = null;
+        return new Promise((resolve, reject) => {
+            this.facebookApi.getThreadHistory(
+                threadID,
+                random.int(this.postsToReadAtOnceMin, this.postsToReadAtOnceMax),
+                messageTimestamp,
+                (err, history) => {
+                    if (err) {
+                        Config.logError(err);
+                        reject(Error("Failed to get thread history"));
+                        return;
                     }
-                    history.pop()
-                };
-                resolve(history);
-            });
+
+                    // if the timestamp is not null then the first message on the list is the one we got the last time
+                    if (messageTimestamp != null) {
+                        if (history == null) {
+                            history = null;
+                        }
+
+                        history.pop();
+                    }
+
+                    resolve(history);
+                }
+            );
         });
     }
 
@@ -374,6 +474,7 @@ export class MediaFetcher {
 
     async getFullPhotoUrl(ID: string): Promise<string> {
         return new Promise((resolve, reject) => {
+            console.log('Attempting to get fullPhotoUrl');
             this.facebookApi.resolvePhotoUrl(ID,  (err, url) => {
                 if (err) {
                     Config.logError(err);

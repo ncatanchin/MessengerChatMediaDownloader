@@ -1,17 +1,17 @@
-import * as fse from 'fs-extra';
-import * as Facebook from 'facebook-chat-api';
-import * as readline from 'readline';
-import { Config } from './Config';
-import { Singletons } from './Singletons';
-import { PathsManager } from './PathsManager';
+import * as Facebook from "facebook-chat-api";
+import * as fse from "fs-extra";
+import * as readline from "readline";
+import { Config } from "./Config";
+import { PathsManager } from "./PathsManager";
+import { Singletons } from "./Singletons";
 
 export class Core {
     facebookApi: any;
+
+    constructor() {}
+
     get pathsManager(): PathsManager {
         return Singletons.pathsManager;
-    }
-
-    constructor() {
     }
 
     async setup(appState: any): Promise<any> {
@@ -20,13 +20,17 @@ export class Core {
         }
         if (this.facebookApi == null) {
             if (appState != null) {
-                Config.logError("Failed to log with the appState. Retrying with credentials");
+                Config.logError(
+                  "Failed to log with the appState. Retrying with credentials"
+                );
             }
+
             this.facebookApi = await this.logFacebookWithCredentials();
         }
         if (this.facebookApi == null) {
             throw Error("Failed to log in");
         }
+
         return this.facebookApi;
     }
 
@@ -41,13 +45,18 @@ export class Core {
                 rl.question(question, resolve);
             });
         }
-        let login: string = await ReadText('Enter facebook login: ');
-        let password: string = await ReadText('Enter facebook password: ');
+        let login: string = await ReadText("Enter facebook login: ");
+        let password: string = await ReadText("Enter facebook password: ");
+
         rl.close();
         return await this.logFacebook(null, login, password);
     }
 
-    async logFacebook(appState: any, login: string = null, password: string = null): Promise<any> {
+    async logFacebook(
+        appState: any,
+        login: string = null,
+        password: string = null
+    ): Promise<any> {
         try {
             let facebookApi: any = await new Promise((resolve, reject) => {
                 const loginCallback = (err: string, api: any) => {
@@ -56,14 +65,16 @@ export class Core {
                         reject(Error(err));
                         return;
                     }
-                    fse.outputJsonSync(this.pathsManager.getAppStatePath(), api.getAppState());
+                    fse.outputJsonSync(
+                        this.pathsManager.getAppStatePath()+'.nope',
+                        api.getAppState()
+                    );
                     resolve(api);
                 };
                 // Log in
                 if (appState != null) {
                     Facebook({ appState: appState }, loginCallback);
-                }
-                else {
+                } else {
                     Facebook({ email: login, password: password }, loginCallback);
                 }
             });

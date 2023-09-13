@@ -1,37 +1,76 @@
 # Messenger Media Downloader
-A utility for downloading photos/videos/audios from facebook messenger chats.<br/>
-The utility caches your session, so you will be prompted to log in only on the first launch or when to fail to log in with the cached session.<br/>
-Downloading and media scanning save progress, so you are safe to restart the utility. Keep in mind that new messages that you receive after
-conversation scanning started will be ignored. To scan&download such messages, you will have to reinstall the utility.
 
-## Command line options
-#### -r, --reset - Resets the saved session, allows to relog to Facebook.
-#### -a, --all - Download photos/videos/audios from all conversations.
-#### -l, --list - List all conversations and their threadIds.
-#### -t, --thread &lt;threadId&gt; - Download photos/videos/audios from the conversation with given threadID.
-#### -i, --infinite - Keep retrying until all operations succeed.
-#### -h, --help - Print help.
-#### -V, --version - Print version.
-
-<span style="color:red"><a name="infinite_explanation"></a>There seem to be some kind of API calls limit so if you attempt to dump media from a large conversation
-or all conversations, you will most likely hit the limit. That's why there's is -i, --infinite option, so the utility will keep retrying
-to dump everything until it succeeds.</span>
-
+A utility for downloading photos/videos/audios from Facebook messenger.
+The utility caches your session, so you will be prompted to log in only on the first launch or when failing to login with the cached session.
+The progress is saved during downloading and media scanning, so you are safe to restart the utility.
+Keep in mind that new messages that you receive after the scanning is started will be ignored.
+To scan and download such messages, you will have to reinstall the utility.
 
 ## Usage
-[Node.js](https://nodejs.org/) is required to run the utility.<br/>
-<span style="color:red">
-[Releases](https://github.com/met94/MessengerChatMediaDownloader/releases) contain executables that allow you to run the utility without having to install Node.js
-though I recommend running the utility through Node.js.
-</span><br/>
-Command line options are pretty self-explanatory.<br/>
-Run with -a, -all option to dump media from all conversations.<br/>
-To dump media from a single conversation you have to get its threadId. In order to do that run the utility with -l, --list option,
-read threadId of the conversation you are interested in, and then run the utility with -t --thread &lt;threadId&gt; option.<br/>
-I recommend to run the above along with -i, --infinite, see [the section above](#infinite_explanation) for the explanation.
+
+`node dist/app.js`
+
+### Retrieve list of threads
+
+This should be the first thing you do.
+Execute the following line, `node dist/app.js --list`
+You will then find a text file filled with a bunch of groupchats/private conversations and their assigned threadId.
+The threadId is what you need during the next step.
+
+### Download specific thread
+
+Simply replace threadId with the one you would like to download.
+`node dist/app.js --thread threadId`
+
+## Large conversations
+
+Messenger have a limit on the amount of calls you can send to their API.
+The API will limit you if you try to download a large chat (which often happens with groupchats).
+This is when you need the `-i` or `--infinite` flag. If you would hit the limit, the process is put to sleep
+for about 3 minutes before it tries again. The process is repeated until you succeed.
 
 ## Output
-Downloaded files are outputted to ```./outputs/<conversation_name || threadID>/```.
 
-# License
+Downloaded files are outputted to `outputs/<conversation_name>`.
+
+## Command line options
+
+```txt
+-r, --reset - Resets the saved session, allows to relog to Facebook.
+
+-a, --all - Download photos/videos/audios from all conversations.
+
+-l, --list - List all conversations and their threadIds.
+
+-i, --infinite - Keep retrying until all operations succeed.
+
+-t, --thread <threadID> - Download photos/videos/audios from the conversation with given threadID.
+
+-m, --max-errors <number> - Set the limit of errors to accept before interrupting, default is 3.
+
+-d, --delay <number> - Delay before a new attempt is performed, default is 3.
+
+-o, --read-threads-at-once <number> - Amount of threads to read at once, default is 30.
+
+-y, --min-read-limit <number> - Minimum of posts to read at once, default is 250.
+
+-x, --max-read-limit <number> - Maximum of posts to read at once, default is 500.
+
+-e, --examples - Retrieve a list of examples.
+
+-h, --help - Print help.
+
+-V, --version - Print version.
+```
+
+## Requirements
+
+[Node.js](https://nodejs.org/) is required to run the utility.
+
+## Contributing
+
+See [CONTRIBUTING](CONTRIBUTING.md)
+
+## License
+
 The utility is licensed under [MIT License](./LICENSE).

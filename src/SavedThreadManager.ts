@@ -1,6 +1,6 @@
-import * as fse from 'fs-extra';
-import { PathsManager } from './PathsManager';
-import { ThreadSavedInfo } from './ThreadSavedInfo';
+import * as fse from "fs-extra";
+import { PathsManager } from "./PathsManager";
+import { ThreadSavedInfo } from "./ThreadSavedInfo";
 
 export class SavedThreadManager {
     threadsInfo: { [threadId: string]: ThreadSavedInfo } = {};

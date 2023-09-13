@@ -13,20 +13,32 @@
   },
   "devDependencies": {
     "@types/node": "^8.0.14",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
     "typescript": "^3.2.2"
   },
   "dependencies": {
     "@microsoft/tsdoc": "^0.12.14",
     "@types/fs-extra": "^8.0.1",
+    "@types/random": "^2.1.0",
     "commander": "^3.0.2",
+    "console-table-printer": "^2.11.2",
     "delay": "^4.3.0",
-    "download": "^7.1.0",
+    "download": "^8.0.0",
     "facebook-chat-api": "^1.6.1",
     "fs-extra": "^8.1.0",
-    "random": "^2.1.1"
+    "random": "^2.1.1",
+    "translate": "^2.0.2"
   },
   "pkg": {
-    "scripts": [ "dist/*.js", "node_modules/**/*.js" ]
+    "scripts": [
+      "dist/*.js",
+      "node_modules/**/*.js"
+    ]
   },
   "bin": "./dist/app.js"
 }
