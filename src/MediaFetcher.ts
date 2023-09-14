@@ -176,28 +176,35 @@ console.log('Calling aveUrlsToDisk');
         while (readMessages < messageCount) {
             try {
                 history = await this.fetchThreadHistory(threadId, messageTimestamp);
+
                 if (history.length > 0) {
                     readMessages += history.length;
                     let percent = calculateProgress();
+
                     if (percent > percentReadNotify) {
                         printProgress(percent);
                         percentReadNotify = 10 + percent;
                     }
+
                     messageTimestamp = Number(history[0].timestamp);
+
                     history.forEach(
                         msg => (urls = urls.concat(this.getUrlsFromMessage(msg)))
                     );
 
                     fullHist = fullHist.concat(history);
 
+                    /*
                     for (let i = 0; i < urls.length; i++) {
                         let attachmentID = urls[i];
+
                         if (attachmentID.indexOf("https") == -1) {
                             console.log('Replacing '+attachmentID+' with fullPhotoUrl, waiting...');
                             await new Promise(r => setTimeout(r, random.int(10_000, 15_000)));
-                            urls[i+1] = await this.getFullPhotoUrl(attachmentID);
+                            urls = urls.concat(await this.getFullPhotoUrl(attachmentID));
                         }
                     }
+                    */
                 } else {
                     emptyHistoryCounter++;
 
@@ -218,7 +225,7 @@ console.log('Calling aveUrlsToDisk');
             }
         }
 
-        console.log(fullHist);
+        // console.log(fullHist);
         this.saveMessages(threadId + '-full', fullHist);
 
         saveProgress();
@@ -333,13 +340,15 @@ console.log('Calling aveUrlsToDisk');
     }
 
     saveMessages(threadID: string, data) {
-        console.log('saveMessages');
-
         let filePath: string = this.pathsManager.getMessagesPath(threadID);
-
+        console.log('saving messages  ... ', filePath);
         try {
-            fse.writeFileSync(filePath, JSON.stringify(data));
-        } catch (error) { }
+            fse.writeFileSync(filePath, JSON.stringify(data, null, 2));
+        } catch (error) {
+            console.error('Error!', error);
+        }
+
+        console.log('* Messages saved to '+filePath);
     }
 
     async saveUrlsToDisk(threadId: string, urls: string[]) {
@@ -363,7 +372,7 @@ console.log('Calling aveUrlsToDisk');
                 writeStream.end(resolve);
             });
             await awaitableStreamEnd;
-            console.log("Urls saved to " + urlsPath);
+            console.log("* Urls saved to " + urlsPath);
         }
     }
 

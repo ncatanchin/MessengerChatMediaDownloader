@@ -56,7 +56,6 @@ export class PathsManager {
         return path.join(this.basedir, "temp", threadID + "-messages.json");
     }
 
-
     getAppStatePath(): string {
         return path.join(this.basedir, "appstate.json");
     }
